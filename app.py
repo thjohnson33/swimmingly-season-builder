@@ -310,6 +310,19 @@ def fmt_time(t: time) -> str:
     return t.strftime("%I:%M %p").lstrip("0")
 
 
+# 15-min options across a full day, formatted as "1:00 PM"
+TIME_OPTIONS = [time(h, m) for h in range(24) for m in (0, 15, 30, 45)]
+TIME_OPTION_LABELS = {t: fmt_time(t) for t in TIME_OPTIONS}
+
+
+def nearest_time_option(t: time) -> time:
+    """Snap a time to the nearest 15-min slot in TIME_OPTIONS."""
+    total_min = t.hour * 60 + t.minute
+    snapped = round(total_min / 15) * 15
+    snapped = max(0, min(snapped, 23 * 60 + 45))
+    return time(snapped // 60, snapped % 60)
+
+
 def primary_age_group(block: dict) -> str:
     """For combined blocks, primary = oldest group. Drives yardage/complexity."""
     order = list(AGE_GROUPS.keys())
@@ -948,7 +961,7 @@ def page_setup_schedule():
 
     # Template + utility row
     templates = load_templates()
-    tc1, tc2, tc3 = st.columns([2, 1, 1])
+    tc1, tc2 = st.columns([2, 1])
     with tc1:
         if templates:
             chosen = st.selectbox("Load a saved schedule template",
@@ -963,11 +976,6 @@ def page_setup_schedule():
     with tc2:
         if st.button("🔁 Reset to defaults", use_container_width=True):
             st.session_state.schedule_blocks = default_schedule()
-            st.rerun()
-    with tc3:
-        if st.button("⚡ Stack from 4:00 PM", use_container_width=True,
-                     help="Auto-fill consecutive start times beginning at 4:00 PM"):
-            stack_schedule(time(16, 0))
             st.rerun()
 
     st.divider()
@@ -1006,15 +1014,33 @@ def page_setup_schedule():
             blocks[idx]["label"] = " & ".join(new_ags)
 
         with c3:
-            blocks[idx]["start_time"] = st.time_input(
-                "Start", value=block["start_time"], key=f"sch_start_{idx}",
-                label_visibility="collapsed", step=300,
+            current_start = nearest_time_option(block["start_time"])
+            try:
+                start_idx = TIME_OPTIONS.index(current_start)
+            except ValueError:
+                start_idx = TIME_OPTIONS.index(time(16, 0))
+            blocks[idx]["start_time"] = st.selectbox(
+                "Start",
+                TIME_OPTIONS,
+                index=start_idx,
+                format_func=lambda t: TIME_OPTION_LABELS[t],
+                key=f"sch_start_{idx}",
+                label_visibility="collapsed",
             )
 
         with c4:
-            blocks[idx]["end_time"] = st.time_input(
-                "End", value=block["end_time"], key=f"sch_end_{idx}",
-                label_visibility="collapsed", step=300,
+            current_end = nearest_time_option(block["end_time"])
+            try:
+                end_idx = TIME_OPTIONS.index(current_end)
+            except ValueError:
+                end_idx = TIME_OPTIONS.index(time(17, 0))
+            blocks[idx]["end_time"] = st.selectbox(
+                "End",
+                TIME_OPTIONS,
+                index=end_idx,
+                format_func=lambda t: TIME_OPTION_LABELS[t],
+                key=f"sch_end_{idx}",
+                label_visibility="collapsed",
             )
 
         with c5:
