@@ -27,8 +27,14 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-SWIMMINGLY_BLUE = "#1AA7EC"
-SWIMMINGLY_NAVY = "#0B3D91"
+SWIMMINGLY_BLUE = "#25bfea"
+SWIMMINGLY_NAVY = "#101242"
+SWIMMINGLY_LIGHT_BLUE = "#8de2f5"
+SWIMMINGLY_DARK_GRAY = "#8898aa"
+SWIMMINGLY_GRAY = "#a9bfcf"
+SWIMMINGLY_LIGHT_GRAY = "#c9d9e4"
+TEXT_COLOR = "#101242"  # Navy for all body text — readable on white
+SURFACE_BG = "#f4f8fb"  # Soft surface tint based on light gray
 
 # Templates persistence (mock — local JSON file). Swap for DB later.
 TEMPLATES_FILE = "schedule_templates.json"
@@ -36,44 +42,90 @@ TEMPLATES_FILE = "schedule_templates.json"
 st.markdown(
     f"""
     <style>
-        .main .block-container {{ padding-top: 2rem; max-width: 1200px; }}
-        h1, h2, h3 {{ color: {SWIMMINGLY_NAVY}; }}
+        /* Force light surfaces + navy text everywhere, regardless of OS dark mode */
+        .stApp {{
+            background-color: #ffffff;
+        }}
+        .main .block-container {{
+            padding-top: 2rem;
+            max-width: 1200px;
+            color: {TEXT_COLOR};
+        }}
+        .main, .main p, .main li, .main span, .main label, .main div {{
+            color: {TEXT_COLOR};
+        }}
+        h1, h2, h3, h4, h5, h6 {{
+            color: {SWIMMINGLY_NAVY} !important;
+        }}
+        /* Sidebar styling — also navy text on light bg */
+        section[data-testid="stSidebar"] {{
+            background-color: #f4f8fb;
+        }}
+        section[data-testid="stSidebar"] * {{
+            color: {TEXT_COLOR};
+        }}
+        /* Primary buttons */
         .stButton>button[kind="primary"] {{
             background-color: {SWIMMINGLY_BLUE};
-            color: white;
+            color: white !important;
             border: none;
             font-weight: 600;
         }}
         .stButton>button[kind="primary"]:hover {{
             background-color: {SWIMMINGLY_NAVY};
-            color: white;
+            color: white !important;
         }}
+        /* Secondary buttons */
+        .stButton>button[kind="secondary"] {{
+            background-color: white;
+            color: {SWIMMINGLY_NAVY} !important;
+            border: 1px solid {SWIMMINGLY_LIGHT_GRAY};
+        }}
+        .stButton>button[kind="secondary"]:hover {{
+            background-color: {SURFACE_BG};
+            border-color: {SWIMMINGLY_BLUE};
+        }}
+        /* Practice cards */
         .practice-card {{
-            background: #f8fbff;
-            border: 1px solid #e1ecf7;
+            background: {SURFACE_BG};
+            border: 1px solid {SWIMMINGLY_LIGHT_GRAY};
             border-left: 4px solid {SWIMMINGLY_BLUE};
             padding: 14px 16px;
             border-radius: 8px;
             margin-bottom: 10px;
+            color: {TEXT_COLOR};
         }}
+        .practice-card * {{
+            color: {TEXT_COLOR};
+        }}
+        /* Week headers */
         .week-header {{
             background: {SWIMMINGLY_BLUE};
-            color: white;
+            color: white !important;
             padding: 8px 14px;
             border-radius: 6px;
             font-weight: 600;
             margin: 16px 0 8px 0;
         }}
+        /* Practice plan time blocks */
         .block-box {{
-            background: #f8fbff;
+            background: {SURFACE_BG};
             border-left: 3px solid {SWIMMINGLY_BLUE};
             padding: 12px 16px;
             margin-bottom: 12px;
             border-radius: 4px;
+            color: {TEXT_COLOR};
         }}
+        .block-box * {{
+            color: {TEXT_COLOR};
+        }}
+        .block-box strong {{
+            color: {SWIMMINGLY_NAVY};
+        }}
+        /* Stat cards on dashboard */
         .stat-card {{
             background: white;
-            border: 1px solid #e1ecf7;
+            border: 1px solid {SWIMMINGLY_LIGHT_GRAY};
             border-radius: 8px;
             padding: 16px;
             text-align: center;
@@ -85,16 +137,44 @@ st.markdown(
         }}
         .stat-label {{
             font-size: 13px;
-            color: #555;
+            color: {SWIMMINGLY_DARK_GRAY};
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }}
+        /* Schedule rows on dashboard */
         .sched-row {{
-            background: #f8fbff;
-            border: 1px solid #e1ecf7;
+            background: {SURFACE_BG};
+            border: 1px solid {SWIMMINGLY_LIGHT_GRAY};
             border-radius: 6px;
             padding: 10px 12px;
             margin-bottom: 6px;
+            color: {TEXT_COLOR};
+        }}
+        .sched-row * {{
+            color: {TEXT_COLOR};
+        }}
+        /* Captions and helper text */
+        .stCaption, [data-testid="stCaptionContainer"] {{
+            color: {SWIMMINGLY_DARK_GRAY} !important;
+        }}
+        /* Form inputs — readable on light bg */
+        .stTextInput input, .stTextArea textarea, .stDateInput input,
+        .stTimeInput input, .stSelectbox div[data-baseweb="select"],
+        .stMultiSelect div[data-baseweb="select"] {{
+            background-color: white !important;
+            color: {TEXT_COLOR} !important;
+        }}
+        /* Tables and dataframes */
+        .stDataFrame, .stTable {{
+            color: {TEXT_COLOR};
+        }}
+        /* Markdown content default text */
+        .stMarkdown {{
+            color: {TEXT_COLOR};
+        }}
+        /* Info/success/warning boxes — make sure text is readable */
+        .stAlert {{
+            color: {TEXT_COLOR};
         }}
     </style>
     """,
